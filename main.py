@@ -16,7 +16,7 @@ async def main():
                 print('parsing HTML')
                 items = parse(html)
                 print('writing', FILE_PATH)
-                await write_items(FILE_PATH, items)
+                await write_items(items, FILE_PATH)
                 print(f'Awaiting {FETCH_INTERVAL} seconds')
         await sleep(FETCH_INTERVAL)
 

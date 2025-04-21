@@ -1,8 +1,10 @@
+ORIGIN = "https://www.avito.ru"
+
 URLS = [
     "https://www.avito.ru/tambov/tovary_dlya_kompyutera/dzhoystiki_i_ruli-ASgBAgICAUTGB7ZO?cd=1&q=dualsense+ps5&s=104",
 ]
 
-FILE_PATH = 'avito_ads.txt'
+FILE_PATH = 'avito_ads.jsonl'
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)...",
