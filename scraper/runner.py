@@ -3,6 +3,7 @@ from asyncio import sleep
 from aiohttp import ClientSession
 from scraper import fetch, get_total_pages, parse, extract_ad_id
 from storage import write_items
+from utils import send_telegram_message
 
 
 async def process_url(
@@ -34,6 +35,12 @@ async def process_url(
                     f"🔔 Новое объявление: {item['title']} — "
                     f"{item['price']} ₽\nСсылка: {item['url']}\n"
                 )
+                msg = (
+                    f"🔔 <b>{item['title']}</b>\n"
+                    f"💸 Цена: {item['price']} ₽\n"
+                    f"🔗 <a href=\"{item['url']}\">Ссылка</a>"
+                )
+                await send_telegram_message(msg)
 
         await sleep(randrange(page_delay, page_delay + 8))
         await write_items(new_items, file_path)
