@@ -1,13 +1,15 @@
-import asyncio
-import aiohttp
+from asyncio import sleep, run
+from aiohttp import ClientSession
+
 from scraper import fetch
 from scraper import parse
 from scraper import write_items
-from config import URLS, HEADERS, FILE_PATH
+from config import URLS, HEADERS, FILE_PATH, FETCH_INTERVAL
+
 
 async def main():
     while True:
-        async with aiohttp.ClientSession(headers=HEADERS) as session:
+        async with ClientSession(headers=HEADERS) as session:
             for url in URLS:
                 print('fetching', url)
                 html = await fetch(session, url)
@@ -15,8 +17,9 @@ async def main():
                 items = parse(html)
                 print('writing', FILE_PATH)
                 await write_items(FILE_PATH, items)
-                print(f'Awaiting 30 seconds')
-        await asyncio.sleep(30)
+                print(f'Awaiting {FETCH_INTERVAL} seconds')
+        await sleep(FETCH_INTERVAL)
+
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    run(main())
