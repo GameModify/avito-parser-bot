@@ -13,3 +13,5 @@ HEADERS = {
 }
 
 FETCH_INTERVAL = 30
+
+SEEN_ADS_FILE = 'seen_ads.json'

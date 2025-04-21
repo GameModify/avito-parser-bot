@@ -1,12 +1,13 @@
 import re
 from typing import List, Dict
+from urllib.parse import urlparse
 
 from bs4 import BeautifulSoup
 
 from config import ORIGIN
 
 
-def parse(html: str) -> List[Dict]:
+async def parse(html: str) -> List[Dict]:
     soup = BeautifulSoup(html, "html.parser")
     items = soup.find_all("div", attrs={"data-marker": "item"})
 
@@ -24,8 +25,12 @@ def parse(html: str) -> List[Dict]:
 
     return results
 
+async def extract_ad_id(url: str) -> str:
+    path = urlparse(url).path  # получаем только путь без параметров
+    match = re.search(r'_(\d+)', path)  # ищем _числа
+    return match.group(1) if match else url
 
-def get_total_pages(html: str) -> int:
+async def get_total_pages(html: str) -> int:
     soup = BeautifulSoup(html, "html.parser")
     page_buttons = soup.find_all("a", attrs={"data-marker": re.compile(r"pagination-button/page\(\d+\)")})
 
