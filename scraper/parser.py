@@ -1,6 +1,10 @@
-from bs4 import BeautifulSoup
+import re
 from typing import List, Dict
+
+from bs4 import BeautifulSoup
+
 from config import ORIGIN
+
 
 def parse(html: str) -> List[Dict]:
     soup = BeautifulSoup(html, "html.parser")
@@ -19,3 +23,16 @@ def parse(html: str) -> List[Dict]:
             })
 
     return results
+
+
+def get_total_pages(html: str) -> int:
+    soup = BeautifulSoup(html, "html.parser")
+    page_buttons = soup.find_all("a", attrs={"data-marker": re.compile(r"pagination-button/page\(\d+\)")})
+
+    page_numbers = []
+    for btn in page_buttons:
+        match = re.search(r'page\((\d+)\)', btn.get("data-marker", ""))
+        if match:
+            page_numbers.append(int(match.group(1)))
+
+    return max(page_numbers) if page_numbers else 1
