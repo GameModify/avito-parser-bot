@@ -2,4 +2,5 @@
 .idea
 .git
 venv
-avito_ads.txt
+avito_ads.jsonl
+test.py
