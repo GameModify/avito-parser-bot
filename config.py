@@ -12,6 +12,6 @@ HEADERS = {
     "Referer": "https://www.avito.ru/",
 }
 
-FETCH_INTERVAL = 30
+FETCH_INTERVAL = 180
 
 SEEN_ADS_FILE = 'seen_ads.json'
