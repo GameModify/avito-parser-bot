@@ -1,5 +1,4 @@
 from random import randrange
-from asyncio import sleep
 from aiohttp import ClientSession
 from scraper import fetch, get_total_pages, parse, extract_ad_id
 from storage import write_items
