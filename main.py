@@ -1,5 +1,5 @@
 from random import randrange
-from asyncio import sleep, run
+from asyncio import run
 from aiohttp import ClientSession
 
 from config import URLS, HEADERS, FILE_PATH, FETCH_INTERVAL, SEEN_ADS_FILE
