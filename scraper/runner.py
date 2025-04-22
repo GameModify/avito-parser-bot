@@ -11,7 +11,7 @@ async def process_url(
     base_url: str,
     file_path: str,
     seen_ads: set,
-    page_delay: int = 4
+    page_delay: int = 10
 ):
     print(f"🌐 Обработка: {base_url}")
     first_html = await fetch(session, base_url)
