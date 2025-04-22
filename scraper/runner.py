@@ -1,8 +1,9 @@
 from random import randrange
 from aiohttp import ClientSession
 from scraper import fetch, get_total_pages, parse, extract_ad_id
-from storage import write_items
+from storage import write_items, save_seen_ads
 from utils import send_telegram_message, countdown
+from config import SEEN_ADS_FILE
 
 
 async def process_url(
@@ -10,7 +11,7 @@ async def process_url(
     base_url: str,
     file_path: str,
     seen_ads: set,
-    page_delay: int = 10
+    page_delay: int = 4
 ):
     print(f"🌐 Обработка: {base_url}")
     first_html = await fetch(session, base_url)
@@ -30,7 +31,9 @@ async def process_url(
                 print(f"🔄 новый id: {str(ad_id)}")
                 seen_ads.add(ad_id)
                 new_items.append(item)
+                await save_seen_ads(seen_ads, SEEN_ADS_FILE)
                 print(
+                    "\n"
                     f"🔔 Новое объявление: {item['title']} — "
                     f"{item['price']} ₽\nСсылка: {item['url']}\n"
                 )
