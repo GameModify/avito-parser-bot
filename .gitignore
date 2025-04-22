@@ -4,3 +4,4 @@
 venv
 avito_ads.jsonl
 test.py
+seen_ads.json
