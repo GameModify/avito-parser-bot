@@ -3,7 +3,7 @@ from asyncio import sleep
 from aiohttp import ClientSession
 from scraper import fetch, get_total_pages, parse, extract_ad_id
 from storage import write_items
-from utils import send_telegram_message
+from utils import send_telegram_message, countdown
 
 
 async def process_url(
@@ -11,7 +11,7 @@ async def process_url(
     base_url: str,
     file_path: str,
     seen_ads: set,
-    page_delay: int = 2
+    page_delay: int = 4
 ):
     print(f"🌐 Обработка: {base_url}")
     first_html = await fetch(session, base_url)
@@ -42,5 +42,6 @@ async def process_url(
                 )
                 await send_telegram_message(msg)
 
-        await sleep(randrange(page_delay, page_delay + 8))
+        timer = randrange(page_delay, page_delay + 8)
+        await countdown(timer)
         await write_items(new_items, file_path)
