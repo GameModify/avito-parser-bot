@@ -18,7 +18,7 @@ async def main():
                     base_url=url,
                     file_path=FILE_PATH,
                     seen_ads=seen_ads,
-                    page_delay=4
+                    page_delay=10
                 )
             save_seen_ads(seen_ads, SEEN_ADS_FILE)
             timer = randrange(FETCH_INTERVAL, FETCH_INTERVAL + 40   )
