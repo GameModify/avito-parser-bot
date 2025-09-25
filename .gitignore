@@ -3,4 +3,4 @@
 .git
 venv
 test.py
-/seen_ads.json
+seen_ads.json
