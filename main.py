@@ -4,7 +4,7 @@ from aiohttp import ClientSession
 
 from config import URLS, HEADERS, COOKIES, FILE_PATH, FETCH_INTERVAL, SEEN_ADS_FILE
 from scraper import process_url
-from storage.seen_ads import load_seen_ads, save_seen_ads
+from storage.seen_ads import load_seen_ads
 from utils import countdown
 
 
