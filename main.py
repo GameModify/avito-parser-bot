@@ -1,6 +1,6 @@
 from random import randrange
 from asyncio import run
-from aiohttp import ClientSession
+from aiocfscrape import CloudflareScraper
 
 from config import URLS, HEADERS, COOKIES, FILE_PATH, FETCH_INTERVAL, SEEN_ADS_FILE
 from scraper import process_url
@@ -10,7 +10,7 @@ from utils import countdown
 
 async def main():
     seen_ads = await load_seen_ads(SEEN_ADS_FILE)
-    async with ClientSession(headers=HEADERS, cookies=COOKIES) as session:
+    async with CloudflareScraper(headers=HEADERS, cookies=COOKIES) as session:
         while True:
             for url in URLS:
                 await process_url(
