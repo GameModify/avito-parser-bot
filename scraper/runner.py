@@ -1,5 +1,5 @@
 from random import randrange
-from aiohttp import ClientSession
+from aiocfscrape import CloudflareScraper
 from scraper import fetch, get_total_pages, parse, extract_ad_id
 from storage import write_items, save_seen_ads
 from utils import send_telegram_message, countdown
@@ -7,7 +7,7 @@ from config import SEEN_ADS_FILE
 
 
 async def process_url(
-    session: ClientSession,
+    session: CloudflareScraper,
     base_url: str,
     file_path: str,
     seen_ads: set,
