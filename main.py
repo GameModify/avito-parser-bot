@@ -2,7 +2,7 @@ from random import randrange
 from asyncio import run
 from aiocfscrape import CloudflareScraper
 
-from config import URLS, HEADERS, COOKIES, FILE_PATH, FETCH_INTERVAL, SEEN_ADS_FILE
+from config import URLS, HEADERS, COOKIES, FILE_PATH, FETCH_INTERVAL, SEEN_ADS_FILE, PAGE_FETCH_INTERVAL
 from scraper import process_url
 from storage.seen_ads import load_seen_ads
 from utils import countdown
@@ -18,7 +18,7 @@ async def main():
                     base_url=url,
                     file_path=FILE_PATH,
                     seen_ads=seen_ads,
-                    page_delay=4
+                    page_delay=PAGE_FETCH_INTERVAL
                 )
             timer = randrange(FETCH_INTERVAL, FETCH_INTERVAL + 40  )
             await countdown(timer)

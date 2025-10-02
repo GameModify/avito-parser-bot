@@ -3,7 +3,7 @@ from aiocfscrape import CloudflareScraper
 from scraper import fetch, get_total_pages, parse, extract_ad_id
 from storage import write_items, save_seen_ads
 from utils import send_telegram_message, countdown
-from config import SEEN_ADS_FILE
+from config import SEEN_ADS_FILE, ADDITIONAL_PAGE_FETCH_INTERVAL
 
 
 async def process_url(
@@ -11,7 +11,7 @@ async def process_url(
     base_url: str,
     file_path: str,
     seen_ads: set,
-    page_delay: int = 4
+    page_delay: int
 ):
     print(f"🌐 Обработка: {base_url}")
     first_html = await fetch(session, base_url)
@@ -44,6 +44,6 @@ async def process_url(
                 )
                 await send_telegram_message(msg)
 
-        timer = randrange(page_delay, page_delay + 8)
+        timer = randrange(page_delay, page_delay + ADDITIONAL_PAGE_FETCH_INTERVAL)
         await countdown(timer)
         await write_items(new_items, file_path)
