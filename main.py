@@ -3,9 +3,9 @@ from asyncio import run
 from aiocfscrape import CloudflareScraper
 
 from config import URLS, HEADERS, COOKIES, FILE_PATH, FETCH_INTERVAL, SEEN_ADS_FILE, PAGE_FETCH_INTERVAL
-from scraper import process_url, get_request_cookies, get_request_headers
+from scraper import process_url
 from storage.seen_ads import load_seen_ads
-from utils import countdown
+from utils import countdown, get_request_cookies, get_request_headers
 
 
 async def main():

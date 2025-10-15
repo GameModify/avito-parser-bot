@@ -3,7 +3,8 @@ import asyncio
 import json
 import zstandard as zstd
 from config import CAPTCHA_SLEEP_INTERVAL, HEADERS, COOKIES
-from utils import send_telegram_message, countdown
+
+from utils import send_telegram_message, countdown, get_request_headers, get_request_cookies
 
 MAX_RETRIES = 5
 RETRY_DELAY = 10
@@ -11,7 +12,7 @@ RETRY_DELAY = 10
 async def fetch(session: aiohttp.ClientSession, url: str) -> dict:
     for attempt in range(1, MAX_RETRIES + 1):
         try:
-            async with session.get(url, headers=HEADERS, cookies=COOKIES) as response:
+            async with session.get(url, headers=get_request_headers(HEADERS), cookies=get_request_cookies(COOKIES)) as response:
                 encoding = response.headers.get("Content-Encoding", "")
 
                 if response.status in (403, 429):
