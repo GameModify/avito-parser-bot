@@ -1,6 +1,6 @@
 from random import randrange
 from aiocfscrape import CloudflareScraper
-from scraper import fetch, get_total_pages, parse, extract_ad_id
+from scraper import fetch, parse, extract_ad_id
 from storage import write_items, save_seen_ads
 from utils import send_telegram_message, countdown
 from config import SEEN_ADS_FILE, ADDITIONAL_PAGE_FETCH_INTERVAL
@@ -14,27 +14,28 @@ async def process_url(
     page_delay: int
 ):
     print(f"🌐 Обработка: {base_url}")
-    first_html = await fetch(session, base_url)
-    total_pages = await get_total_pages(first_html)
-    print(f"🔄 Найдено страниц: {total_pages}")
 
-    for page in range(1, total_pages + 1):
-        page_url = f"{base_url}&p={page}"
-        print(f"📄 Страница {page}/{total_pages} — {page_url}")
-        html = await fetch(session, page_url)
-        items = await parse(html)
+    page = 1
+    while True:
+        page_url = base_url.replace("page={page}", f"page={page}")
+        print(f"📄 Страница {page} — {page_url}")
+
+        data = await fetch(session, page_url)
+        items = await parse(data)
+
+        if not items:
+            print(f"✅ На странице {page} объявлений не найдено, остановка.")
+            break
 
         new_items = []
         for item in items:
             ad_id = await extract_ad_id(item["url"])
             if ad_id not in seen_ads:
-                print(f"🔄 новый id: {str(ad_id)}")
                 seen_ads.add(ad_id)
                 new_items.append(item)
                 await save_seen_ads(seen_ads, SEEN_ADS_FILE)
                 print(
-                    "\n"
-                    f"🔔 Новое объявление: {item['title']} — "
+                    f"\n🔔 Новое объявление: {item['title']} — "
                     f"{item['price']} ₽\nСсылка: {item['url']}\n"
                 )
                 msg = (
@@ -44,6 +45,10 @@ async def process_url(
                 )
                 await send_telegram_message(msg)
 
+        await write_items(new_items, file_path)
+
+        # Ждём случайное время перед следующей страницей
         timer = randrange(page_delay, page_delay + ADDITIONAL_PAGE_FETCH_INTERVAL)
         await countdown(timer)
-        await write_items(new_items, file_path)
+
+        page += 1
