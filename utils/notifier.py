@@ -9,7 +9,8 @@ async def send_telegram_message(text: str):
     payload = {
         "chat_id": CHAT_ID,
         "text": text,
-        "parse_mode": "HTML"
+        "parse_mode": "HTML",
+        "disable_web_page_preview": True
     }
 
     for attempt in range(1, TELEGRAM_RETRY_COUNT + 1):
