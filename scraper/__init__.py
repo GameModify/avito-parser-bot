@@ -1,3 +1,3 @@
-from .parser import parse, get_total_pages, extract_ad_id
+from .parser import parse, extract_ad_id
 from .fetcher import fetch
 from .runner import process_url
