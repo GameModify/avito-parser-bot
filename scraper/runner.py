@@ -29,26 +29,27 @@ async def process_url(
 
         new_items = []
         for item in items:
-            ad_id = await extract_ad_id(item["url"])
-            if ad_id not in seen_ads:
-                seen_ads.add(ad_id)
+            if await handle_new_item(item, seen_ads, SEEN_ADS_FILE):
                 new_items.append(item)
-                await save_seen_ads(seen_ads, SEEN_ADS_FILE)
-                print(
-                    f"\n🔔 Новое объявление: {item['title']} — "
-                    f"{item['price']} ₽\nСсылка: {item['url']}\n"
-                )
-                msg = (
-                    f"🔔 <b>{item['title']}</b>\n"
-                    f"💸 Цена: {item['price']} ₽\n"
-                    f"🔗 <a href=\"{item['url']}\">Ссылка</a>"
-                )
-                await send_telegram_message(msg)
 
         await write_items(new_items, file_path)
 
-        # Ждём случайное время перед следующей страницей
         timer = randrange(page_delay, page_delay + ADDITIONAL_PAGE_FETCH_INTERVAL)
         await countdown(timer)
 
         page += 1
+
+async def handle_new_item(item, seen_ads, seen_ads_file):
+    ad_id = await extract_ad_id(item["url"])
+    if ad_id in seen_ads:
+        return False
+    seen_ads.add(ad_id)
+    await save_seen_ads(seen_ads, seen_ads_file)
+    msg = (
+        f"🔔 <b>{item['title']}</b>\n"
+        f"💸 Цена: {item['price']} ₽\n"
+        f"🔗 <a href=\"{item['url']}\">Ссылка</a>"
+    )
+    await send_telegram_message(msg)
+    print(f"📢 Новое объявление: {item['title']} — {item['price']} ₽")
+    return True
