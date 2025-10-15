@@ -20,7 +20,7 @@ async def fetch(session: aiohttp.ClientSession, url: str) -> dict:
                     await countdown(CAPTCHA_SLEEP_INTERVAL * attempt)
                     continue
 
-                raw = await response.read()  # всегда байты
+                raw = await response.read()
 
                 try:
                     if "application/json" in response.headers.get("Content-Type", "") and not encoding:
