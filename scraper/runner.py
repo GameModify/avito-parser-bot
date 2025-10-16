@@ -6,6 +6,7 @@ from utils import send_telegram_message, countdown
 from config import SEEN_ADS_FILE, ADDITIONAL_PAGE_FETCH_INTERVAL
 
 
+
 async def process_url(
     session: CloudflareScraper,
     base_url: str,

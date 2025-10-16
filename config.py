@@ -15,6 +15,12 @@ TELEGRAM_TIMEOUT = 10  # таймаут запроса в секундах
 TELEGRAM_RETRY_COUNT = 3         # количество повторов при ошибке
 TELEGRAM_RETRY_DELAY = 5   # задержка между попытками
 
+USE_PROXY = False
+
+PROXIES = [
+    "socks5://koba:kobavless@192.168.1.2:2080",
+]
+
 
 
 ORIGIN = "https://m.avito.ru"
@@ -74,7 +80,3 @@ COOKIES = {
     "csprefid": "c7c4befb-d022-4491-a90b-d897b44a9540"
 }
 
-
-PROXIES = {
-
-}

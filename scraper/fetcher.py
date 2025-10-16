@@ -2,60 +2,92 @@ import aiohttp
 import asyncio
 import json
 import zstandard as zstd
-from config import CAPTCHA_SLEEP_INTERVAL, HEADERS, COOKIES
-
+import random
+from typing import Dict
+from config import HEADERS, COOKIES, USE_PROXY
+from scraper.session import create_session
 from utils import send_telegram_message, countdown, get_request_headers, get_request_cookies
 
-MAX_RETRIES = 5
-RETRY_DELAY = 10
+MAX_RETRIES = 6
+BASE_RETRY_DELAY = 5  # сек
+MAX_BACKOFF = 300
+JITTER = 0.25
 
-async def fetch(session: aiohttp.ClientSession, url: str) -> dict:
+
+def _apply_jitter(delay: float) -> float:
+    jitter = delay * JITTER
+    return max(0.0, delay + random.uniform(-jitter, jitter))
+
+async def _wait_retry(response: aiohttp.ClientResponse, attempt: int):
+    ra = response.headers.get("Retry-After")
+    try:
+        ra_val = int(ra) if ra else None
+    except Exception:
+        ra_val = None
+
+    if ra_val:
+        wait = ra_val + random.uniform(1, 3)
+    else:
+        wait = min(BASE_RETRY_DELAY * (2 ** (attempt - 1)), MAX_BACKOFF)
+
+    await countdown(int(_apply_jitter(wait)))
+
+async def _simple_backoff(attempt: int):
+    delay = min(BASE_RETRY_DELAY * (2 ** (attempt - 1)), MAX_BACKOFF)
+    await countdown(int(_apply_jitter(delay)))
+
+async def fetch(session: aiohttp.ClientSession, url: str) -> Dict:
+
     for attempt in range(1, MAX_RETRIES + 1):
+        headers = get_request_headers(HEADERS)
+        cookies = get_request_cookies(COOKIES)
         try:
-            async with session.get(url, headers=get_request_headers(HEADERS), cookies=get_request_cookies(COOKIES)) as response:
+            timeout = aiohttp.ClientTimeout(total=30)
+
+            async with session.get(url, headers=headers, cookies=cookies, timeout=timeout) as response:
+                status = response.status
                 encoding = response.headers.get("Content-Encoding", "")
 
-                if response.status in (403, 429):
-                    warn_msg = f"⚠️ Блок при запросе {url} (статус {response.status}), попытка {attempt}/{MAX_RETRIES}"
-                    print(warn_msg)
-                    await countdown(CAPTCHA_SLEEP_INTERVAL * attempt)
+                if status in (403, 429):
+                    print(f"⚠️ Блок при запросе {url} (статус {status}), попытка {attempt}/{MAX_RETRIES}")
+                    if USE_PROXY:
+                        try:
+                            print("🔁 Пересоздаю сессию с новым proxy/headers/cookies...")
+                            await session.close()
+                            session = await create_session()
+                        except Exception as e:
+                            print(f"⚠️ Ошибка пересоздания сессии: {e}")
+                    await _wait_retry(response, attempt)
                     continue
-
                 raw = await response.read()
-
                 try:
-                    if "application/json" in response.headers.get("Content-Type", "") and not encoding:
-                        data = json.loads(raw.decode("utf-8"))
-                    elif "zstd" in encoding:
+                    content_type = response.headers.get("Content-Type", "")
+                    if "zstd" in encoding:
                         dctx = zstd.ZstdDecompressor()
                         with dctx.stream_reader(raw) as reader:
                             decompressed = reader.read()
                         data = json.loads(decompressed.decode("utf-8"))
-                    elif "gzip" in encoding or "br" in encoding or "deflate" in encoding:
+                    elif "application/json" in content_type and not encoding:
+                        data = json.loads(raw.decode("utf-8"))
+                    else:
                         text = await response.text()
                         data = json.loads(text)
-                    else:
-                        data = json.loads(raw.decode("utf-8"))
-
-                    items = data.get("result", {}).get("items") or data.get("items") or []
-                    if not items:
-                        print(f"⚠️ На странице {url} объявлений не найдено, попытка {attempt}/{MAX_RETRIES}")
-                        await asyncio.sleep(RETRY_DELAY * attempt)
-                        continue
-
-                    return data
-
                 except Exception as e:
-                    error_msg = f"❌ Ошибка декодирования Avito ответа (encoding={encoding}): {e}"
-                    print(error_msg)
-                    await asyncio.sleep(RETRY_DELAY * attempt)
+                    print(f"❌ Ошибка декодирования ответа (attempt {attempt}): {e}")
+                    delay = min(BASE_RETRY_DELAY * (2 ** (attempt - 1)), MAX_BACKOFF)
+                    await countdown(_apply_jitter(delay))
                     continue
+                return data
 
+        except asyncio.TimeoutError:
+            print(f"❌ Timeout при запросе {url} (attempt {attempt}/{MAX_RETRIES})")
+        except aiohttp.ClientError as e:
+            print(f"❌ ClientError при запросе {url} (attempt {attempt}/{MAX_RETRIES}): {e}")
         except Exception as e:
-            error_msg = f"❌ Ошибка при запросе {url}: {e}"
-            print(error_msg)
-            await asyncio.sleep(RETRY_DELAY * attempt)
-            continue
+            print(f"❌ Ошибка при запросе {url} (attempt {attempt}/{MAX_RETRIES}): {e}")
+
+        delay = min(BASE_RETRY_DELAY * (2 ** (attempt - 1)), MAX_BACKOFF)
+        await countdown(_apply_jitter(delay))
 
     print(f"❌ Не удалось получить страницу {url} после {MAX_RETRIES} попыток")
     return {}
