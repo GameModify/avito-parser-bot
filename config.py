@@ -15,7 +15,7 @@ TELEGRAM_TIMEOUT = 10
 TELEGRAM_RETRY_COUNT = 3
 TELEGRAM_RETRY_DELAY = 5
 
-USE_PROXY = False
+USE_PROXY = True
 
 PROXIES = [
     "socks5://koba:kobavless@192.168.1.2:2080",
@@ -80,3 +80,6 @@ COOKIES = {
     "csprefid": "c7c4befb-d022-4491-a90b-d897b44a9540"
 }
 
+
+# Database (SQLite URL for SQLAlchemy async engine)
+DB_URL = "sqlite+aiosqlite:///./avito.db"
