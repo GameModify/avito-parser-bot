@@ -2,7 +2,7 @@ from aiohttp_socks import ProxyConnector
 import aiohttp
 
 async def get_ip_via_proxy(proxy_url: str) -> str:
-    connector = ProxyConnector.from_url(proxy_url)  # <-- правильно
+    connector = ProxyConnector.from_url(proxy_url)
     try:
         async with aiohttp.ClientSession(connector=connector) as session:
             async with session.get("https://ipwhois.app/json/") as resp:
