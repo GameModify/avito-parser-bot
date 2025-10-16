@@ -21,12 +21,14 @@ async def create_session() -> CloudflareScraper:
         print("🚀 Прокси отключен, работа напрямую")
         await get_ip_via_proxy_direct()
 
-    return CloudflareScraper(
+    session = CloudflareScraper(
         headers=get_request_headers(HEADERS),
         cookies=get_request_cookies(COOKIES),
         connector=connector
     )
 
+    session._proxy_url = proxy
+    return session
 
 async def fetch_with_retry(session: CloudflareScraper, url: str) -> dict:
     for attempt in range(1, MAX_RETRIES + 1):

@@ -6,7 +6,7 @@ import random
 from typing import Dict
 from config import HEADERS, COOKIES, USE_PROXY
 from scraper.session import create_session
-from utils import send_telegram_message, countdown, get_request_headers, get_request_cookies
+from utils import countdown, get_request_headers, get_request_cookies, log_metric
 
 MAX_RETRIES = 6
 BASE_RETRY_DELAY = 5  # сек
@@ -37,7 +37,7 @@ async def _simple_backoff(attempt: int):
     await countdown(int(_apply_jitter(delay)))
 
 async def fetch(session: aiohttp.ClientSession, url: str) -> Dict:
-
+    proxy_used = getattr(session, "_proxy_url", None)
     for attempt in range(1, MAX_RETRIES + 1):
         headers = get_request_headers(HEADERS)
         cookies = get_request_cookies(COOKIES)
@@ -49,6 +49,7 @@ async def fetch(session: aiohttp.ClientSession, url: str) -> Dict:
                 encoding = response.headers.get("Content-Encoding", "")
 
                 if status in (403, 429):
+                    await log_metric(url, status, False, proxy_used, headers, cookies, error=f"Blocked with {status}")
                     print(f"⚠️ Блок при запросе {url} (статус {status}), попытка {attempt}/{MAX_RETRIES}")
                     if USE_PROXY:
                         try:
@@ -59,6 +60,7 @@ async def fetch(session: aiohttp.ClientSession, url: str) -> Dict:
                             print(f"⚠️ Ошибка пересоздания сессии: {e}")
                     await _wait_retry(response, attempt)
                     continue
+
                 raw = await response.read()
                 try:
                     content_type = response.headers.get("Content-Type", "")
@@ -73,21 +75,29 @@ async def fetch(session: aiohttp.ClientSession, url: str) -> Dict:
                         text = await response.text()
                         data = json.loads(text)
                 except Exception as e:
+                    await log_metric(url, status, False, proxy_used, headers, cookies, error=str(e))
                     print(f"❌ Ошибка декодирования ответа (attempt {attempt}): {e}")
                     delay = min(BASE_RETRY_DELAY * (2 ** (attempt - 1)), MAX_BACKOFF)
                     await countdown(_apply_jitter(delay))
                     continue
+
+
+                await log_metric(url, status, True, proxy_used, headers, cookies)
                 return data
 
         except asyncio.TimeoutError:
+            await log_metric(url, 0, False, proxy_used, headers, cookies, error="Timeout")
             print(f"❌ Timeout при запросе {url} (attempt {attempt}/{MAX_RETRIES})")
         except aiohttp.ClientError as e:
+            await log_metric(url, 0, False, proxy_used, headers, cookies, error=str(e))
             print(f"❌ ClientError при запросе {url} (attempt {attempt}/{MAX_RETRIES}): {e}")
         except Exception as e:
+            await log_metric(url, 0, False, proxy_used, headers, cookies, error=str(e))
             print(f"❌ Ошибка при запросе {url} (attempt {attempt}/{MAX_RETRIES}): {e}")
 
         delay = min(BASE_RETRY_DELAY * (2 ** (attempt - 1)), MAX_BACKOFF)
         await countdown(_apply_jitter(delay))
 
+    await log_metric(url, 0, False, proxy_used, headers, cookies, error="Max retries exceeded")
     print(f"❌ Не удалось получить страницу {url} после {MAX_RETRIES} попыток")
     return {}
