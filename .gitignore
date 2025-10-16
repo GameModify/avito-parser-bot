@@ -1,8 +1,25 @@
-# created by virtualenv automatically
+# Python
+__pycache__
+
+
+# IDE/OS
 .idea
 .git
+# Venv
 venv
-test.py
-avito_ads.jsonl
-seen_ads.json
+.venv
+
+# Env/Secrets
+.env
+*.env
+
+# Local data/logs
+avito.db
+*.db
 metrics.log
+*.log
+
+# Cursor/Editor tools
+.cursor/
+.agent/
+.agent-tools/
