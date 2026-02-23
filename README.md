@@ -3,35 +3,101 @@ Avito Parser Bot
 
 STATUS: IN DEVELOPMENT
 
-Quick start
------------
+Асинхронный парсер объявлений Avito с сохранением в базу данных и отправкой уведомлений в Telegram
+о новых объявлениях по заданным поисковым запросам.
 
-1. Create virtualenv and install deps:
-   ```bash
-   python -m venv .venv && .venv\Scripts\activate
+Проект использует мобильное API Avito, обходит Cloudflare (через `aiocfscrape`), хранит объявления
+в SQLite через SQLAlchemy и Alembic и логирует метрики HTTP‑запросов для отладки и мониторинга.
+
+Основные возможности
+--------------------
+- Отслеживание новых объявлений по выбранным поисковым запросам Avito.
+- Асинхронная загрузка страниц через `CloudflareScraper`.
+- Сохранение объявлений и поисковых запросов в базу данных (SQLite).
+- Исключение дублей: повторные объявления обновляются в БД без повторной рассылки.
+- Уведомления о новых объявлениях в Telegram (название, цена, ссылка).
+- Логирование метрик запросов в `metrics.log` для последующего анализа (`metrics_report.py`).
+- Поддержка работы через прокси (`socks5` и др.).
+
+Технологии
+----------
+- Python 3.11+
+- aiohttp / aiocfscrape
+- SQLAlchemy (async) + aiosqlite
+- Alembic (миграции БД)
+- Telegram Bot API (через HTTP‑запросы)
+
+Структура проекта
+-----------------
+- `main.py` — входная точка, бесконечный цикл обхода заданных URL Avito.
+- `config.py` — настройки парсера: токен Telegram, интервалы опроса, прокси, базовые URL и заголовки.
+- `scraper/`:
+  - `session.py` — создание HTTP‑сессии `CloudflareScraper`.
+  - `fetcher.py`, `parser.py` — загрузка и разбор ответов Avito API.
+  - `runner.py` — обход страниц с объявлениями, запись в БД, отправка уведомлений.
+- `storage/`:
+  - `db/base.py`, `db/session.py` — инициализация async‑движка SQLAlchemy и сессий.
+  - `repository.py` — функции работы с моделями (запросы/объявления).
+- `models/` — описания ORM‑моделей (объявления, поисковые запросы).
+- `utils/`:
+  - `notifier.py` — отправка уведомлений в Telegram с ретраями.
+  - `metrics.py` — запись метрик HTTP‑запросов в `metrics.log`.
+  - `timer.py` — вспомогательный асинхронный таймер/обратный отсчёт.
+  - `get_ip.py`, `headers_cookies.py` — работа с IP, заголовками и cookies.
+
+Установка и запуск
+------------------
+
+1. **Создать виртуальное окружение и установить зависимости**
+
+   ```
+   python -m venv .venv
+   .venv\Scripts\activate  # Windows
    pip install -r requirements.txt
    ```
-2. Copy `.env.example` to `.env` and fill `TELEGRAM_TOKEN`, `CHAT_ID`, `PROXIES` if needed.
-3. Initialize DB schema:
-   ```bash
+
+2. **Настроить конфигурацию**
+
+   Откройте файл `config.py` и укажите:
+
+   - `TELEGRAM_TOKEN` — токен вашего Telegram‑бота.
+   - `CHAT_ID` — ID чата/пользователя, куда слать уведомления.
+   - `PROXIES` и `USE_PROXY` — при необходимости работы через прокси.
+   - `URLS` — список API‑URL Avito с плейсхолдером `page={page}`.
+   - `DB_URL` — при необходимости изменить путь/тип базы данных.
+
+3. **Инициализировать схему базы данных**
+
+   По умолчанию используется SQLite‑файл `./avito.db`.
+
+   ```
    alembic upgrade head
    ```
-4. Run:
-   ```bash
+
+4. **Запустить парсер**
+
+   ```
    python main.py
    ```
 
-Notes
------
-- Configure `AVITO_URLS` with `page={page}` placeholder.
-- Logs of request metrics are written to `metrics.log` and can be summarized with `metrics_report.py`.
-- JSONL экспорт отключён; данные хранятся в SQLite (`avito.db`).
+   Скрипт будет в бесконечном цикле:
+   - обходить все URL из `URLS`,
+   - постранично парсить объявления,
+   - сохранять их в БД,
+   - отправлять уведомления в Telegram только по новым объявлениям.
 
-Database and migrations
------------------------
-- Default DB: SQLite at `./avito.db`. URL can be changed via `DB_URL` in `config.py`.
-- Initialize DB schema with Alembic:
-  ```bash
+Метрики и логирование
+---------------------
+- Все HTTP‑запросы логируются в файл `metrics.log` в формате JSONL
+  (одна запись — одна строка).
+- Для агрегации/анализа метрик можно использовать скрипт `metrics_report.py`.
+
+База данных и миграции
+----------------------
+- База по умолчанию: SQLite `./avito.db`.
+- URL базы настраивается в `config.py` (`DB_URL`, async‑URL SQLAlchemy).
+- Миграции управляются через Alembic:
+
+  ```
   alembic upgrade head
   ```
-
