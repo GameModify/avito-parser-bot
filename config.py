@@ -2,8 +2,8 @@
 
 SEEN_ADS_FILE = "seen_ads.json"
 
-TELEGRAM_TOKEN = "7657348751:AAHrSXlFwb9l-LaGNjTVTKw6Vr-8uABUqf8"
-CHAT_ID = "699235501"
+TELEGRAM_TOKEN = "TELEGRAM_TOKEN_HERE"
+CHAT_ID = "YOU'RE CHAT ID"
 
 FETCH_INTERVAL = 180
 ADDITIONAL_FETCH_INTERVAL = 12
@@ -18,7 +18,7 @@ TELEGRAM_RETRY_DELAY = 5
 USE_PROXY = True
 
 PROXIES = [
-    "socks5://koba:kobavless@192.168.1.2:2080",
+    "socks5://LOGIN:PASS@IP:PORT",
 ]
 
 
@@ -52,32 +52,7 @@ HEADERS = {
 }
 
 COOKIES = {
-    "srv_id": "qgBQ0IEmhSLjEJ_-.uExpcQRm4HK2T_yN_wozBLLCCQ9CLckBwgellHxjiKn3xgbqKtu3CgKrvP7G3I4cpBMR.LqYKf4lSnz7nsAPTD3_7DgG7FX_nxdQYm4ZT1f5I2ls=.web",
-    "u": "3768jr4x.1fhefk7.1tqegi9zj7j00",
-    "uxs_uid": "f552f310-5b2f-11f0-9962-f54972b0033b",
-    "__zzatw-avito": "MDA0dBA=Fz2+aQ==",
-    "_gcl_au": "1.1.1458558365.1751892201",
-    "_ga": "GA1.1.1162737788.1751892202",
-    "auth": "1",
-    "buyer_laas_location": "656830",
-    "buyer_location_id": "656830",
-    "_ga_9NLSMYFRV5": "GS2.1.s1758739429$o2$g0$t1758739429$j60$l0$h0",
-    "sx": "H4sIAAAAAAAC%2F0zOzUoDMRAA4HeZ8x42M5mZZG8iLNqD%2BIO9Z5KJUJS6CBVb8u6eir7Ax3eBzFgKEXoiUvTce7WgKEXMzD3BcoETLDB%2FNbV1%2Fvy%2B%2Bdkdt%2FMJJnBYgnJGEpE8JqgcS2vUzKJb8%2B6M6tw89cxzcrtS%2FPzo%2B7sVX1%2FWh93%2B%2FfhHBU0acUzQe5RSYxXyolJ78KKWpCMTB490pQ7Zn25t%2B9jkbPfl7fB%2FxTTjGL8BAAD%2F%2F5LprIviAAAA",
-    "cfidsw-avito": "qgFRwPbVXeuOUT9X4o2Fte5drF6rFCV6S2KN/dET+fTqa+l8t17hDg9HH9gQpvZckjfz/qPXv+yLJ4RyDSLLy7Ac16FgRL3E3LAwzV8pDmRcP6z+jRSyitQJYyu1detx2DFQv4dQO1TMvegbQoAPR9qvXtjgUgjJxN8wzg==",
-    "_ga_ZJDLBTV49B": "GS2.1.s1759429895$o60$g0$t1759429895$j60$l0$h0",
-    "v": "1759582535",
-    "sessid": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTk2Njg5MzYsImlhdCI6MTc1OTU4MjUzNiwidSI6MTA4NDIyNDg3LCJwIjo3NTQ0Mjk2NCwicyI6IjdlOWU0NmZjMTY4ZWEyZmQ4ZjZjNWFjM2U4MmU3N2MzLjE3NTk1ODI1MzYiLCJoIjoiZjdhNjgyOGIzMmVkODZlMGQ5YzY5Yjk4ZmNmMWYxNjBfMTc1OTU4MjUzNiIsInYiOm51bGwsImV4dHJhIjpudWxsfQ.Bf0QDaVz6FTuz2h7mp9M9eIUZ98KPFd-VIiKUTbwXe97mEIYQOVGovNgSz0WYQtm1v5eeKaGhYBHpch5Tg0WPQ",
-    "rt": "da82c05ade642ca81e511974ae7c0ac0",
-    "gMltIuegZN2COuSe": "EOFGWsm50bhh17prLqaIgdir1V0kgrvN",
-    "luri": "tambov",
-    "ft": "q4+XkFWCRBe+29dTDbyoYVk9tnl0irMrK8WIh7jD69rKQZqhyEsWne8RoU6BEZzkYdqQzlTgOP0XtNWzPBESHAAtmxGXb5HskI0DJ2Pg1lHHouXjQnKUaCfj9wz7uFUqjJnh47z6ryylgD068Rx+jul1a5zwG2O12haaqMDMvuiTHmzkzaGSJebwLpLvA8gf",
-    "pageviewCount": "1621",
-    "cssid": "cf5716a9-67d4-4c8e-a134-a3903cf20ff5",
-    "cssid_exp": "1759584497082",
-    "_mlocation": "621540",
-    "_mlocation_mode": "default",
-    "_adcc": "1.isrJNZ4GS6UYegGdrblfwz00kUQegLXVABN7Bs6hMWF2FqDFHKPog60WwCufpaJkDJG+yu4",
-    "csprefid": "c7c4befb-d022-4491-a90b-d897b44a9540"
+    YOURE COOKIES
 }
 
 
