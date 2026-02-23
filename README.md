@@ -1,6 +1,8 @@
 Avito Parser Bot
 ================
 
+STATUS: IN DEVELOPMENT
+
 Quick start
 -----------
 
