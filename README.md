@@ -25,7 +25,7 @@ STATUS: IN DEVELOPMENT
 - aiohttp / aiocfscrape
 - SQLAlchemy (async) + aiosqlite
 - Alembic (миграции БД)
-- Telegram Bot API (через HTTP‑запросы)
+- Telegram Bot API
 
 Структура проекта
 -----------------
