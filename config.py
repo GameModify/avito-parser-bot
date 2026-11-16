@@ -52,7 +52,7 @@ HEADERS = {
 }
 
 COOKIES = {
-    YOURE COOKIES
+    "YOURE COOKIES"
 }
 
 
